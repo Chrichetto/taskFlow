@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="TaskFlow - Gestione moderna delle attività" />
+  <title>TaskFlow | Le tue attività</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="./styles.css" />
+  <script src="./app.js" defer></script>
+</head>
+
+<body>
+  <div class="background-orb background-orb--one"></div>
+  <div class="background-orb background-orb--two"></div>
+
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#" aria-label="TaskFlow home">
+        <span class="brand__logo">T</span>
+        <span>TaskFlow</span>
+      </a>
+
+      <nav class="navigation" aria-label="Navigazione principale">
+        <button class="nav-item nav-item--active" id="dashboardButton" type="button">
+          <span class="nav-item__icon">⌂</span>
+          Dashboard
+        </button>
+
+        <button class="nav-item" id="showAllButton" type="button">
+          <span class="nav-item__icon">✓</span>
+          Tutte le task
+        </button>
+
+        <button class="nav-item" id="calendarButton" type="button">
+          <span class="nav-item__icon">▣</span>
+          Calendario
+        </button>
+
+        <button class="nav-item" id="showCompletedButton" type="button">
+          <span class="nav-item__icon">★</span>
+          Completate
+        </button>
+
+        <button class="nav-item" id="openTaskModalButton" type="button">
+          <span class="nav-item__icon">＋</span>
+          Nuova task
+        </button>
+
+        <button class="nav-item" id="openCategoryModalButton" type="button">
+          <span class="nav-item__icon">🏷</span>
+          Nuova categoria
+        </button>
+
+        <button class="nav-item" id="openEditCategoryModalButton" type="button">
+          <span class="nav-item__icon">✎</span>
+          Modifica categoria
+        </button>
+      </nav>
+
+      <div class="sidebar-card">
+        <div class="sidebar-card__emoji">🚀</div>
+        <h3>Un passo alla volta</h3>
+        <p>Organizza le attività e porta a termine i tuoi obiettivi.</p>
+      </div>
+
+      <div class="sidebar__footer">
+        <div class="avatar">JD</div>
+        <div>
+          <strong>Il mio spazio</strong>
+          <span>Task Manager</span>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button class="menu-button" id="menuButton" type="button" aria-label="Apri menu">
+          ☰
+        </button>
+
+        <div>
+          <p class="eyebrow">La tua giornata</p>
+          <h1>Facciamo qualcosa di grande ✨</h1>
+          <p class="topbar__date" id="currentDate"></p>
+        </div>
+
+        <div class="topbar__actions">
+          <button class="primary-button" id="openTaskTopButton" type="button">
+            <span>＋</span> Nuova task
+          </button>
+          <button class="refresh-button" id="refreshButton" type="button">
+            <span>↻</span> Aggiorna
+          </button>
+        </div>
+      </header>
+
+      <div id="dashboardView">
+      <section class="stats-grid" aria-label="Riepilogo attività">
+        <article class="stat-card stat-card--purple">
+          <div class="stat-card__icon">📋</div>
+          <div>
+            <span>Task totali</span>
+            <strong id="totalTasks">0</strong>
+          </div>
+        </article>
+
+        <article class="stat-card stat-card--green">
+          <div class="stat-card__icon">✅</div>
+          <div>
+            <span>Completate</span>
+            <strong id="completedTasks">0</strong>
+          </div>
+        </article>
+
+        <article class="stat-card stat-card--orange">
+          <div class="stat-card__icon">⚡</div>
+          <div>
+            <span>Alta priorità</span>
+            <strong id="highPriorityTasks">0</strong>
+          </div>
+        </article>
+
+        <article class="stat-card stat-card--blue">
+          <div class="stat-card__icon">📈</div>
+          <div>
+            <span>Progresso</span>
+            <strong id="progressPercentage">0%</strong>
+          </div>
+        </article>
+      </section>
+
+      <section class="content-card">
+        <div class="content-card__header">
+          <div>
+            <p class="eyebrow">Organizzazione</p>
+            <h2>Le tue attività</h2>
+          </div>
+
+          <div class="view-switcher" aria-label="Tipo visualizzazione">
+            <button class="view-button view-button--active" id="gridViewButton" type="button" aria-label="Vista griglia">
+              ▦
+            </button>
+            <button class="view-button" id="listViewButton" type="button" aria-label="Vista lista">
+              ☷
+            </button>
+          </div>
+        </div>
+
+        <div class="filters">
+          <label class="search-box">
+            <span>⌕</span>
+            <input
+              id="searchInput"
+              type="search"
+              placeholder="Cerca una task..."
+              autocomplete="off"
+            />
+          </label>
+
+          <label class="filter-field">
+            <span>Priorità</span>
+            <select id="priorityFilter">
+              <option value="">Tutte</option>
+              <option value="5">Urgente</option>
+              <option value="4">Molto alta</option>
+              <option value="3">Alta</option>
+              <option value="2">Media</option>
+              <option value="1">Bassa</option>
+              <option value="0">Nessuna</option>
+            </select>
+          </label>
+
+          <label class="filter-field">
+            <span>Stato</span>
+            <select id="statusFilter">
+              <option value="">Tutte</option>
+              <option value="false">Da completare</option>
+              <option value="true">Completate</option>
+            </select>
+          </label>
+
+          <label class="filter-field">
+            <span>Categoria</span>
+            <select id="categoryFilter">
+              <option value="">Tutte</option>
+            </select>
+          </label>
+
+          <label class="filter-field date-filter-field">
+            <span>Data inizio</span>
+            <input id="startDateFilter" type="hidden" />
+            <button class="date-display date-display--compact" type="button" data-date-target="startDateFilter">
+              <span class="date-display__icon">📅</span>
+              <span class="date-display__value" data-date-label="startDateFilter">Qualsiasi</span>
+            </button>
+          </label>
+
+          <label class="filter-field date-filter-field">
+            <span>Data fine</span>
+            <input id="endDateFilter" type="hidden" />
+            <button class="date-display date-display--compact" type="button" data-date-target="endDateFilter">
+              <span class="date-display__icon">🏁</span>
+              <span class="date-display__value" data-date-label="endDateFilter">Qualsiasi</span>
+            </button>
+          </label>
+        </div>
+
+        <div class="active-filter" id="activeFilter" hidden>
+          <span id="activeFilterText"></span>
+          <button id="clearFiltersButton" type="button">Rimuovi filtri</button>
+        </div>
+
+        <div class="loading-state" id="loadingState">
+          <div class="spinner"></div>
+          <p>Sto caricando le tue task...</p>
+        </div>
+
+        <div class="error-state" id="errorState" hidden>
+          <div class="error-state__icon">⚠️</div>
+          <h3>Qualcosa non ha funzionato</h3>
+          <p id="errorMessage">Impossibile caricare le attività.</p>
+          <button id="retryButton" type="button">Riprova</button>
+        </div>
+
+        <div class="empty-state" id="emptyState" hidden>
+          <div class="empty-state__icon">🌱</div>
+          <h3>Nessuna attività trovata</h3>
+          <p>Prova a cambiare i filtri o aggiungi nuove task dal backend.</p>
+        </div>
+
+        <div class="tasks-grid" id="tasksContainer" aria-live="polite"></div>
+      </section>
+      </div>
+
+      <section class="calendar-page" id="calendarView" hidden>
+        <div class="calendar-page__header">
+          <div>
+            <p class="eyebrow">Pianificazione mensile</p>
+            <h2>Calendario delle task</h2>
+            <p>Visualizza le attività nei giorni compresi tra inizio e scadenza.</p>
+          </div>
+          <div class="calendar-toolbar">
+            <button class="calendar-nav-button" id="previousMonthButton" type="button" aria-label="Mese precedente">‹</button>
+            <button class="calendar-today-button" id="todayCalendarButton" type="button">Oggi</button>
+            <button class="calendar-nav-button" id="nextMonthButton" type="button" aria-label="Mese successivo">›</button>
+          </div>
+        </div>
+        <div class="calendar-month-title" id="calendarMonthTitle"></div>
+        <div class="calendar-weekdays" aria-hidden="true">
+          <span>Lun</span><span>Mar</span><span>Mer</span><span>Gio</span><span>Ven</span><span>Sab</span><span>Dom</span>
+        </div>
+        <div class="calendar-grid" id="calendarGrid" aria-live="polite"></div>
+      </section>
+    </main>
+  </div>
+
+
+  <div class="modal" id="taskModal" hidden>
+    <div class="modal__backdrop" data-close-modal="taskModal"></div>
+    <section class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="taskModalTitle">
+      <div class="modal__header">
+        <div>
+          <p class="eyebrow">Nuova attività</p>
+          <h2 id="taskModalTitle">Crea una task ✨</h2>
+        </div>
+        <button class="modal__close" type="button" data-close-modal="taskModal" aria-label="Chiudi">×</button>
+      </div>
+
+      <form id="taskForm" class="form-grid">
+        <label class="form-field form-field--full">
+          <span>Nome della task</span>
+          <input id="taskName" name="nome" type="text" maxlength="255" placeholder="Es. Studiare Express Router" required />
+        </label>
+
+        <label class="form-field">
+          <span>Data inizio</span>
+          <input id="taskStartDate" name="dataInizio" type="hidden" required />
+          <button class="date-display" type="button" data-date-target="taskStartDate">
+            <span class="date-display__icon">📅</span>
+            <span class="date-display__value" data-date-label="taskStartDate">Scegli una data</span>
+            <span class="date-display__arrow">⌄</span>
+          </button>
+        </label>
+
+        <label class="form-field">
+          <span>Data fine</span>
+          <input id="taskEndDate" name="dataFine" type="hidden" required />
+          <button class="date-display" type="button" data-date-target="taskEndDate">
+            <span class="date-display__icon">🏁</span>
+            <span class="date-display__value" data-date-label="taskEndDate">Scegli una data</span>
+            <span class="date-display__arrow">⌄</span>
+          </button>
+        </label>
+
+        <label class="form-field">
+          <span>Priorità</span>
+          <select id="taskPriority" name="priorita" required>
+            <option value="0">Nessuna</option>
+            <option value="1">Bassa</option>
+            <option value="2">Media</option>
+            <option value="3" selected>Alta</option>
+            <option value="4">Molto alta</option>
+            <option value="5">Urgente</option>
+          </select>
+        </label>
+
+        <label class="form-field">
+          <span>Categoria</span>
+          <select id="taskCategory" name="iDcategoria" required>
+            <option value="">Seleziona...</option>
+          </select>
+        </label>
+
+        <label class="checkbox-field form-field--full">
+          <input id="taskCompleted" name="completata" type="checkbox" />
+          <span>La task è già completata</span>
+        </label>
+
+        <p class="form-error form-field--full" id="taskFormError" hidden></p>
+
+        <div class="form-actions form-field--full">
+          <button class="secondary-button" type="button" data-close-modal="taskModal">Annulla</button>
+          <button class="primary-button" id="submitTaskButton" type="submit">Crea task</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div class="modal" id="categoryModal" hidden>
+    <div class="modal__backdrop" data-close-modal="categoryModal"></div>
+    <section class="modal__panel modal__panel--small" role="dialog" aria-modal="true" aria-labelledby="categoryModalTitle">
+      <div class="modal__header">
+        <div>
+          <p class="eyebrow">Organizzazione</p>
+          <h2 id="categoryModalTitle">Nuova categoria 🏷️</h2>
+        </div>
+        <button class="modal__close" type="button" data-close-modal="categoryModal" aria-label="Chiudi">×</button>
+      </div>
+
+      <form id="categoryForm" class="form-grid">
+        <label class="form-field form-field--full" id="categoryIdField" hidden>
+          <span>Categoria da modificare</span>
+          <select id="categoryId" name="idVecchiaCategoria">
+            <option value="">Seleziona...</option>
+          </select>
+        </label>
+
+        <label class="form-field form-field--full">
+          <span>Nome categoria</span>
+          <input id="categoryName" name="nome" type="text" maxlength="255" placeholder="Es. Università" required />
+        </label>
+
+        <p class="form-error form-field--full" id="categoryFormError" hidden></p>
+
+        <div class="form-actions form-field--full">
+          <button class="secondary-button" type="button" data-close-modal="categoryModal">Annulla</button>
+          <button class="primary-button" id="submitCategoryButton" type="submit">Crea categoria</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div class="date-picker" id="datePicker" hidden>
+    <div class="date-picker__header">
+      <button type="button" id="datePickerPrevious" aria-label="Mese precedente">‹</button>
+      <strong id="datePickerTitle"></strong>
+      <button type="button" id="datePickerNext" aria-label="Mese successivo">›</button>
+    </div>
+    <div class="date-picker__weekdays"><span>L</span><span>M</span><span>M</span><span>G</span><span>V</span><span>S</span><span>D</span></div>
+    <div class="date-picker__days" id="datePickerDays"></div>
+    <div class="date-picker__footer">
+      <button type="button" id="datePickerClear">Cancella</button>
+      <button type="button" id="datePickerToday">Oggi</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
