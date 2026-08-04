@@ -1,13 +1,16 @@
+const API_BASE_URL = "https://taskflow-backend-b0ip.onrender.com";
+
 const API = {
-  tasks: "http://localhost:3000/tasks",
-  createTask: "http://localhost:3000/tasks/tasks",
-  createCategory: "http://localhost:3000/tasks/categorie",
-  updateTask: "http://localhost:3000/tasks/tasks",
-  updateCategory: "http://localhost:3000/tasks/categorie",
-  taskById: id => `http://localhost:3000/tasks/id/${id}`,
-  categoryById: id => `http://localhost:3000/tasks/categorie/id/${id}`,
-  deleteTask: "http://localhost:3000/tasks/tasks",
-  deleteCategory: "http://localhost:3000/tasks/categorie",
+  tasks: `${API_BASE_URL}/tasks`,
+  categories: `${API_BASE_URL}/tasks/categorie`,
+  createTask: `${API_BASE_URL}/tasks/tasks`,
+  createCategory: `${API_BASE_URL}/tasks/categorie`,
+  updateTask: `${API_BASE_URL}/tasks/tasks`,
+  updateCategory: `${API_BASE_URL}/tasks/categorie`,
+  taskById: id => `${API_BASE_URL}/tasks/id/${id}`,
+  categoryById: id => `${API_BASE_URL}/tasks/categorie/id/${id}`,
+  deleteTask: `${API_BASE_URL}/tasks/tasks`,
+  deleteCategory: `${API_BASE_URL}/tasks/categorie`,
 };
 
 const state = {
@@ -115,16 +118,40 @@ function bindEvents() {
 }
 
 async function loadTasks(showSuccess = false) {
-  setLoading(true); hideError();
+  setLoading(true);
+  hideError();
+
   try {
-    const data = await requestJson(API.tasks);
-    if (!Array.isArray(data)) throw new Error("Il server non ha restituito un array di task.");
-    state.tasks = data.map(normalizeTask);
-    populateCategories(); updateStats(); applyFilters(); renderCalendar();
-    if (showSuccess) showToast("Task aggiornate con successo ✨");
+    const [tasksData, categoriesData] = await Promise.all([
+      requestJson(API.tasks),
+      requestJson(API.categories),
+    ]);
+
+    if (!Array.isArray(tasksData)) {
+      throw new Error("Il server non ha restituito un array di task.");
+    }
+
+    if (!Array.isArray(categoriesData)) {
+      throw new Error("Il server non ha restituito un array di categorie.");
+    }
+
+    state.tasks = tasksData.map(normalizeTask);
+    state.categoryNames = Object.fromEntries(
+      categoriesData.map(categoria => [String(categoria.id), categoria.nome])
+    );
+
+    populateCategories();
+    updateStats();
+    applyFilters();
+    renderCalendar();
+
+    if (showSuccess) showToast("Dati aggiornati con successo ✨");
   } catch (error) {
-    console.error(error); showError(`${error.message} Controlla backend e CORS.`);
-  } finally { setLoading(false); }
+    console.error(error);
+    showError(`${error.message} Controlla backend e CORS.`);
+  } finally {
+    setLoading(false);
+  }
 }
 
 function openCreateTaskModal() {
@@ -290,8 +317,7 @@ async function saveCategory(event) {
 
     closeModal(elements.categoryModal);
     elements.categoryForm.reset();
-    populateCategories();
-    applyFilters();
+    await loadTasks();
     showToast(editing ? "Categoria aggiornata con successo ✏️" : "Categoria creata con successo 🏷️");
   } catch (error) {
     showFormError(elements.categoryFormError, error.message);
@@ -597,10 +623,13 @@ function createTaskCard(task) {
 }
 
 function populateCategories() {
-  const categories = [...new Set(state.tasks.map(t => String(t.categoria)))].sort((a,b) => a.localeCompare(b,"it",{numeric:true}));
+  const categories = Object.entries(state.categoryNames)
+    .sort((a, b) => a[1].localeCompare(b[1], "it"));
+
   elements.categoryFilter.innerHTML = '<option value="">Tutte</option>';
   elements.taskCategory.innerHTML = '<option value="">Seleziona...</option>';
-  categories.forEach(id => addCategoryOption(id, getCategoryLabel(id)));
+
+  categories.forEach(([id, nome]) => addCategoryOption(id, nome));
 }
 function addCategoryOption(id, label) {
   if (![...elements.categoryFilter.options].some(o => o.value === id)) elements.categoryFilter.add(new Option(label,id));
@@ -608,9 +637,11 @@ function addCategoryOption(id, label) {
 }
 
 function populateCategoryEditSelect() {
-  const ids = [...new Set(state.tasks.map(task => String(task.categoria)))].sort((a,b) => a.localeCompare(b,"it",{numeric:true}));
+  const categories = Object.entries(state.categoryNames)
+    .sort((a, b) => a[1].localeCompare(b[1], "it"));
+
   elements.categoryId.innerHTML = '<option value="">Seleziona...</option>';
-  ids.forEach(id => elements.categoryId.add(new Option(getCategoryLabel(id), id)));
+  categories.forEach(([id, nome]) => elements.categoryId.add(new Option(nome, id)));
 }
 
 function clearFilters() {
