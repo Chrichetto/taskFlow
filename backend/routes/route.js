@@ -8,7 +8,8 @@ import {
     getTaskByCompletata,
     getTaskByCategoria,
     getCategoria,
-    getCategoriaId
+    getCategoriaId,
+    getCategorie
 } from "../controller/controllerGet.js";
 
 import express from "express";
@@ -61,6 +62,8 @@ router.get(
     "/",
     getTasks
 );
+
+router.get("/categorie", getCategorie);
 
 router.get(
     "/id/:id",
