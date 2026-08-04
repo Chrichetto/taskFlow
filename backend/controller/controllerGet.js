@@ -325,3 +325,24 @@ export async function getCategoriaId(req, res) {
         });
     }
 }
+
+export async function getCategorie(req, res) {
+    try {
+        const risultato = await database.query(
+            `
+                SELECT id, nome
+                FROM categorie
+                ORDER BY nome ASC
+            `
+        );
+
+        return res.status(200).json(risultato.rows);
+
+    } catch (errore) {
+        console.error("Errore getCategorie:", errore);
+
+        return res.status(500).json({
+            errore: "Impossibile recuperare le categorie!"
+        });
+    }
+}
